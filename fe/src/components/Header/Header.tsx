@@ -1,5 +1,5 @@
 import logo from "../../assets/images/logo.svg";
-import { Container, Content } from "./style.ts";
+import { Container, Content } from "./styles.ts";
 
 export function Header() {
   return (
