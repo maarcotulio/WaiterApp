@@ -7,26 +7,50 @@ import {
   CenteredContainer,
 } from "./styles";
 import { Header } from "../components/Header";
-import { Categories } from "../Categories";
+import { Categories } from "../components/Categories";
 import { Menu } from "../Menu";
 import { Button } from "../components/Button";
 import { TableModal } from "../components/TableModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Cart } from "../components/Cart";
 import { CartItem } from "../types/CartItem";
 import { Product } from "../types/Product";
 import { ActivityIndicator } from "react-native";
 
-import { products as MockProducts } from "../mocks/products";
 import { Empty } from "../components/Icons/Empty";
 import { Text } from "../components/Text";
+import { Category } from "../types/Category";
+import { api } from "../utils/api";
 
 export function Main() {
   const [isLoading, setIsLoading] = useState(false);
   const [isTableModalVisible, setIsTableModalVisible] = useState(false);
   const [selectedTable, setSelectedTable] = useState("");
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [products] = useState<Product[]>(MockProducts);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+
+  useEffect(() => {
+    setIsLoading(true);
+    Promise.all([api.get(`/categories`), api.get(`/products`)])
+      .then(([categoriesResponse, productsResponse]) => {
+        setCategories(categoriesResponse.data);
+        setProducts(productsResponse.data);
+      })
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  async function handleSelectCategory(categoryId: string) {
+    const route = categoryId
+      ? `/categories/${categoryId}/products`
+      : "/products";
+
+    setIsLoadingProducts(true);
+    const { data } = await api.get(route);
+    setIsLoadingProducts(false);
+    setProducts(data);
+  }
 
   function handleSaveTable(table: string) {
     setSelectedTable(table);
@@ -107,25 +131,34 @@ export function Main() {
           </CenteredContainer>
         )}
 
-        {}
-
         {!isLoading && (
           <>
             <CategoriesContainer>
-              <Categories />
+              <Categories
+                categories={categories}
+                onSelectCategory={handleSelectCategory}
+              />
             </CategoriesContainer>
 
-            {products.length > 0 ? (
-              <MenuContainer>
-                <Menu onAddToCart={handleAddToCart} products={products} />
-              </MenuContainer>
-            ) : (
+            {isLoadingProducts ? (
               <CenteredContainer>
-                <Empty />
-                <Text color="#666" style={{ marginTop: 24 }}>
-                  Nenhum produto foi encontrado!
-                </Text>
+                <ActivityIndicator color="#D73036" size="large" />
               </CenteredContainer>
+            ) : (
+              <>
+                {products.length > 0 ? (
+                  <MenuContainer>
+                    <Menu onAddToCart={handleAddToCart} products={products} />
+                  </MenuContainer>
+                ) : (
+                  <CenteredContainer>
+                    <Empty />
+                    <Text color="#666" style={{ marginTop: 24 }}>
+                      Nenhum produto foi encontrado!
+                    </Text>
+                  </CenteredContainer>
+                )}
+              </>
             )}
           </>
         )}
@@ -148,6 +181,7 @@ export function Main() {
               onAdd={handleAddToCart}
               onReduce={handleReduceCartItemQuantity}
               onConfirmOrder={handleResetOrder}
+              selectedTable={selectedTable}
             />
           )}
         </FooterContainer>
