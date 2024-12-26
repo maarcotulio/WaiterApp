@@ -27,3 +27,40 @@
 /fe/*.njsproj
 /fe/*.sln
 /fe/*.sw?
+
+# Mobile
+
+# dependencies
+/app/node_modules/
+
+# Expo
+/app/.expo/
+/app/dist/
+/app/web-build/
+/app/expo-env.d.ts
+
+# Native
+/app/*.orig.*
+/app/*.jks
+/app/*.p8
+/app/*.p12
+/app/*.key
+/app/*.mobileprovision
+
+# Metro
+/app/.metro-health-check*
+
+# debug
+/app/npm-debug.*
+/app/yarn-debug.*
+/app/yarn-error.*
+
+# macOS
+/app/.DS_Store
+/app/*.pem
+
+# local env files
+/app/.env*.local
+
+# typescript
+/app/*.tsbuildinfo

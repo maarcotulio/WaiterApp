@@ -93,7 +93,10 @@ export function OrderModal({ visible, order, onClose }: OrderModalProps) {
         <Actions>
           <button type="button" className="primary">
             <span>🧑‍🍳</span>
-            <strong>Iniciar Produção</strong>
+            <strong>
+              {order.status === "WAITING" && "Iniciar Produção"}
+              {order.status === "IN_PRODUCTION" && "Finalizar Pedido"}
+            </strong>
           </button>
 
           <button type="button" className="secondary">
